@@ -74,7 +74,7 @@ app = FastAPI(
         "Manages student records and student profile photos "
         "for KoalaTech University."
     ),
-    version="1.0.1",
+    version="1.0.2",
     lifespan=lifespan,
 )
 
