@@ -40,9 +40,10 @@ jobs:
         with:
           version: v3.14.0
 
-      - name: Add Prometheus community Helm repo
+      - name: Add Helm repos
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
           helm repo update
 
       - name: Create monitoring namespace
@@ -51,18 +52,29 @@ jobs:
             --dry-run=client \
             -o yaml | kubectl apply -f -
 
-      - name: Deploy kube-prometheus-stack (Prometheus + Grafana)
+      - name: Deploy Prometheus (lightweight, no operator/CRDs)
         run: |
-          helm upgrade --install kube-prometheus-stack \
-            prometheus-community/kube-prometheus-stack \
+          helm upgrade --install prometheus \
+            prometheus-community/prometheus \
             --namespace monitoring \
-            --set grafana.service.type=LoadBalancer \
-            --set prometheus.service.type=LoadBalancer \
+            --set server.service.type=LoadBalancer \
             --set alertmanager.enabled=false \
-            --set prometheus.prometheusSpec.resources.requests.cpu=100m \
-            --set prometheus.prometheusSpec.resources.requests.memory=256Mi \
-            --burst-limit 300 \
-            --wait --timeout 15m
+            --set prometheus-pushgateway.enabled=false \
+            --set server.resources.requests.cpu=100m \
+            --set server.resources.requests.memory=256Mi \
+            --wait --timeout 10m
+
+      - name: Deploy Grafana
+        run: |
+          helm upgrade --install grafana \
+            grafana/grafana \
+            --namespace monitoring \
+            --set service.type=LoadBalancer \
+            --set adminUser=admin \
+            --set adminPassword=KoalaTech123! \
+            --set resources.requests.cpu=100m \
+            --set resources.requests.memory=128Mi \
+            --wait --timeout 10m
 
       - name: Show monitoring resources
         run: |
