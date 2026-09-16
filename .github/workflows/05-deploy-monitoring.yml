@@ -48,7 +48,7 @@ jobs:
           helm upgrade --install prometheus \
             prometheus-community/prometheus \
             --namespace monitoring \
-            --set server.service.type=LoadBalancer \
+            --set server.service.type=ClusterIP \
             --set alertmanager.enabled=false \
             --set prometheus-pushgateway.enabled=false \
             --set server.resources.requests.cpu=100m \
@@ -58,7 +58,7 @@ jobs:
           helm upgrade --install grafana \
             grafana/grafana \
             --namespace monitoring \
-            --set service.type=LoadBalancer \
+            --set service.type=ClusterIP \
             --set adminUser=admin \
             --set adminPassword=KoalaTech123! \
             --set resources.requests.cpu=100m \
